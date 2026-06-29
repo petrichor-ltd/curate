@@ -1,0 +1,30 @@
+# Public GitHub Pages allowlist
+#
+# Ignore every file by default. Only the deployable website surface is
+# explicitly allowed below. This keeps internal writing workflows, prompts,
+# templates, research notes, and design-process files out of the public repo.
+*
+
+# Keep directories traversable so selected files can be allowed.
+!*/
+
+# Repository and GitHub Pages configuration
+!.gitignore
+!.nojekyll
+!CNAME
+
+# Website application
+!index.html
+!styles.css
+!script.js
+
+# Public article index and dated article content
+!entries.json
+!entries/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].md
+
+# Images actually referenced by the website
+!assets/daily-thought-header.png
+!assets/daily-thought-icon-small.webp
+!assets/illustrations/about-vase.png
+!assets/illustrations/hero-still-life.png
+!assets/illustrations/method-sprig.png

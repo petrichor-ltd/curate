@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="每天兩百字，記下那些還沒想懂的事。細思漫想是一份持續累積的生命紀錄。"
+    />
+    <meta name="theme-color" content="#101816" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:title" content="細思漫想｜記錄碎片" />
+    <meta property="og:description" content="每天兩百字，記下那些還沒想懂的事。" />
+    <meta property="og:image" content="assets/daily-thought-header.png" />
+    <title>細思漫想｜記錄碎片</title>
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="icon" type="image/webp" href="assets/daily-thought-icon-small.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="script.js"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <div class="page-progress" aria-hidden="true"><span></span></div>
+
+    <header class="site-header" data-site-header>
+      <a class="brand" href="#top" aria-label="細思漫想首頁">細思漫想｜記錄碎片</a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-menu-toggle
+      >
+        <span></span><span></span>
+        <span class="sr-only">開啟選單</span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="主要選單" data-nav>
+        <a href="#articles">文章</a>
+        <a href="#method">方法</a>
+        <a href="#about">關於</a>
+      </nav>
+
+      <a class="subscribe-link" href="https://substack.com/@curate2write" rel="noreferrer">訂閱</a>
+    </header>
+
+    <main id="main" data-page>
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="page-shell hero-grid">
+          <div class="hero-copy reveal">
+            <h1 id="hero-title">把日子，慢慢寫成理解。</h1>
+            <p>每天兩百字，記下那些還沒想懂的事。</p>
+            <div class="hero-actions">
+              <button class="hero-button hero-button-primary" type="button" data-open-latest>
+                <span>閱讀最新一篇</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M14 7l5 5-5 5" /></svg>
+              </button>
+              <a class="hero-button hero-button-secondary" href="https://substack.com/@curate2write" rel="noreferrer">
+                <span>在 Substack 訂閱</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M14 7l5 5-5 5" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <figure class="hero-illustration reveal" aria-hidden="true">
+            <img src="assets/illustrations/hero-still-life.png" alt="" />
+          </figure>
+        </div>
+      </section>
+
+      <section class="latest-strip" aria-labelledby="latest-title">
+        <div class="page-shell latest-grid reveal">
+          <div class="latest-date-block">
+            <strong>最新一篇</strong>
+            <time datetime="2026-06-28" data-latest-date>2026.06.28</time>
+            <span data-latest-weekday>星期日</span>
+          </div>
+
+          <button class="latest-story" type="button" data-open-latest>
+            <h2 id="latest-title" data-latest-title>在孤獨的底線上，過加法的生活</h2>
+            <p data-latest-summary>
+              如果把人生從孤獨開始計算，每一段願意靠近、理解與同行的關係，<br />
+              都會成為生命多給的一份禮物。
+            </p>
+          </button>
+
+          <button class="latest-read" type="button" data-open-latest>
+            <span>閱讀全文</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M14 7l5 5-5 5" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <section class="archive" id="articles" aria-labelledby="archive-title">
+        <div class="page-shell">
+          <header class="archive-toolbar reveal">
+            <div class="archive-heading">
+              <h2 id="archive-title">文章存檔</h2>
+              <p><span data-entry-count>目前收錄 2 篇</span>，只顯示有內容的月份。</p>
+            </div>
+
+            <button class="filter-toggle" type="button" aria-expanded="false" data-filter-toggle>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M10 17h10M4 17h2M14 4v6M10 14v6" />
+              </svg>
+              篩選
+            </button>
+
+            <div class="archive-tools" data-filter-panel>
+              <label class="search-field">
+                <span class="sr-only">搜尋文章</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></svg>
+                <input type="search" placeholder="搜尋標題、摘要或標籤⋯" autocomplete="off" data-search />
+              </label>
+
+              <label class="select-field">
+                <span class="sr-only">分類</span>
+                <select data-year-filter>
+                  <option value="all">全部年份</option>
+                </select>
+              </label>
+
+              <label class="select-field">
+                <span class="sr-only">標籤</span>
+                <select data-theme-filter>
+                  <option value="all">全部標籤</option>
+                </select>
+              </label>
+
+              <button class="clear-filters" type="button" data-clear-filters>清除篩選</button>
+            </div>
+          </header>
+
+          <p class="archive-guide">點選日期閱讀；同月份文章較多時，可左右滑動日期列。</p>
+
+          <div class="archive-calendar reveal" data-archive-groups aria-live="polite"></div>
+
+          <p class="archive-empty" data-empty-state hidden>沒有找到符合條件的文章。</p>
+          <button class="load-more" type="button" data-load-more hidden>顯示更多月份</button>
+        </div>
+      </section>
+
+      <section class="closing-band" aria-label="方法與關於">
+        <div class="page-shell closing-grid reveal">
+          <article class="closing-panel" id="method">
+            <div>
+              <h2>方法</h2>
+              <p>關於我如何每天寫兩百字，整理想法，<br />留住當下，慢慢理解自己。</p>
+              <a href="#top">了解寫作方法 <span aria-hidden="true">→</span></a>
+            </div>
+            <img class="method-art" src="assets/illustrations/method-sprig.png" alt="" />
+          </article>
+
+          <article class="closing-panel closing-panel-about" id="about">
+            <div>
+              <h2>關於</h2>
+              <p>這裡為什麼開始，寫些什麼，<br />以及我希望這裡成為什麼樣的地方。</p>
+              <a href="https://substack.com/@curate2write" rel="noreferrer">認識細思漫想 <span aria-hidden="true">→</span></a>
+            </div>
+            <img class="about-art" src="assets/illustrations/about-vase.png" alt="" />
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" data-page-footer>
+      <div class="page-shell">
+        <p>© 2026 細思漫想｜記錄碎片</p>
+        <nav aria-label="頁尾選單">
+          <a href="https://substack.com/@curate2write" rel="noreferrer">訂閱</a>
+          <span aria-hidden="true">｜</span>
+          <a href="#about">隱私政策</a>
+          <span aria-hidden="true">｜</span>
+          <a href="https://substack.com/@curate2write" rel="noreferrer">聯絡我</a>
+        </nav>
+      </div>
+    </footer>
+
+    <section class="reader-view" data-reader hidden aria-hidden="true">
+      <div class="reader-progress" aria-hidden="true"><span data-reader-progress></span></div>
+      <header class="reader-bar">
+        <button class="reader-back" type="button" data-reader-close>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M10 7l-5 5 5 5" /></svg>
+          返回文章索引
+        </button>
+        <span class="reader-brand">細思漫想｜記錄碎片</span>
+        <label class="version-control">
+          <span>閱讀版本</span>
+          <select data-reader-version>
+            <option value="original">原始文章</option>
+            <option value="polished">AI 潤飾</option>
+            <option value="video">影片稿</option>
+            <option value="article" selected>文章版</option>
+          </select>
+        </label>
+      </header>
+
+      <main class="reader-main" data-reader-scroll>
+        <article class="reader-article">
+          <time data-reader-date>2026.06.28</time>
+          <h1 data-reader-title>在孤獨的底線上，過加法的生活</h1>
+          <div class="reader-meta">
+            <span data-reader-themes>孤獨 · 知足 · 關係</span>
+            <span data-reader-time>約 6 分鐘</span>
+          </div>
+          <div class="reader-content" data-reader-content tabindex="-1">
+            <p class="reader-loading">正在打開這一天⋯</p>
+          </div>
+        </article>
+
+        <nav class="reader-adjacent" aria-label="相鄰文章">
+          <button type="button" data-reader-prev hidden><span>上一篇</span><strong></strong></button>
+          <button type="button" data-reader-next hidden><span>下一篇</span><strong></strong></button>
+        </nav>
+      </main>
+    </section>
+
+    <noscript><div class="noscript">請開啟 JavaScript，以使用文章搜尋與閱讀功能。</div></noscript>
+  </body>
+</html>
