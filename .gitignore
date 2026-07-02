@@ -22,6 +22,10 @@
 !entries.json
 !entries/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].md
 
+# Deterministic publication checks (no private prompts or source material)
+!scripts/validate-daily-entry.mjs
+!scripts/verify-site-publication.mjs
+
 # Images actually referenced by the website
 !assets/daily-thought-header.png
 !assets/daily-thought-icon-small.webp
