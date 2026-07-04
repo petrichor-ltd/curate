@@ -186,9 +186,19 @@ try {
   }
 
   const initialVerification = verify(3, delayMs);
-  if (initialVerification.status === 0) {
+  const initialBuild = jsonCommand("gh", ["api", `repos/${repo}/pages/builds/latest`]);
+  if (
+    initialVerification.status === 0 &&
+    initialBuild.commit === upstreamHead &&
+    initialBuild.status === "built"
+  ) {
     process.stdout.write(initialVerification.stdout);
     process.exit(0);
+  }
+  if (initialVerification.status === 0) {
+    console.log(
+      `WAIT public content matches, but latest Pages build is ${initialBuild.status} at ${initialBuild.commit}`,
+    );
   }
 
   let latestRun = pagesRunsForSha(upstreamHead)[0];
