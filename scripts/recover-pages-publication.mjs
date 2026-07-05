@@ -23,7 +23,7 @@ function numberOption(name, fallback, minimum = 0) {
 
 if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "")) {
   console.error(
-    "Usage: node scripts/recover-pages-publication.mjs YYYY-MM-DD [--max-rebuilds N] [--poll-attempts N] [--delay-ms N] [--dry-run]",
+    "Usage: node scripts/recover-pages-publication.mjs YYYY-MM-DD [--max-rebuilds N] [--poll-attempts N] [--delay-ms N] [--workflow-file FILE] [--dry-run]",
   );
   process.exit(2);
 }
@@ -33,6 +33,8 @@ const pollAttempts = numberOption("--poll-attempts", 144, 1);
 const delayMs = numberOption("--delay-ms", 5000, 0);
 const dryRun = args.includes("--dry-run");
 const diagnoseRunId = option("--diagnose-run", "");
+const workflowFile = option("--workflow-file", "pages.yml");
+const workflowNames = new Set(["pages build and deployment", "Deploy GitHub Pages"]);
 const transientPatterns = [
   /Deployment failed, try again later/i,
   /deployment_queued/i,
@@ -92,7 +94,7 @@ function pagesRunsForSha(sha) {
     "databaseId,name,status,conclusion,headSha,createdAt,updatedAt,url",
   ]);
   return runs
-    .filter((runItem) => runItem.name === "pages build and deployment" && runItem.headSha === sha)
+    .filter((runItem) => workflowNames.has(runItem.name) && runItem.headSha === sha)
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 }
 
@@ -124,6 +126,18 @@ async function waitForRun(runItem) {
   throw new Error(`Pages run ${current.databaseId} did not complete within the polling window`);
 }
 
+async function waitForFreshRun(sha, knownRunIds) {
+  for (let attempt = 1; attempt <= pollAttempts; attempt += 1) {
+    const runItem = pagesRunsForSha(sha).find((candidate) => !knownRunIds.has(candidate.databaseId));
+    if (runItem) return runItem.status === "completed" ? runItem : waitForRun(runItem);
+    if (attempt === 1 || attempt % 6 === 0) {
+      console.log(`WAIT pages-workflow attempt=${attempt}/${pollAttempts} sha=${sha}`);
+    }
+    if (attempt < pollAttempts) await sleep(delayMs);
+  }
+  throw new Error(`Pages workflow for ${sha} did not appear within the polling window`);
+}
+
 function classifyFailure(runItem) {
   const details = runDetails(runItem.databaseId);
   const jobs = details.jobs ?? [];
@@ -135,7 +149,8 @@ function classifyFailure(runItem) {
   });
   const logText = `${logs.stdout}\n${logs.stderr}`;
   const recognizedTransient = transientPatterns.some((pattern) => pattern.test(logText));
-  const healthyBuild = build?.conclusion === "success" && report?.conclusion === "success";
+  const healthyBuild =
+    build?.conclusion === "success" && (!report || report.conclusion === "success");
   const deployOnlyFailure = deploy?.conclusion === "failure";
 
   return {
@@ -185,23 +200,31 @@ try {
     throw new Error(`local HEAD ${localHead} does not match upstream ${upstreamHead}`);
   }
 
+  const pagesSettings = jsonCommand("gh", ["api", `repos/${repo}/pages`]);
+  const workflowMode = pagesSettings.build_type === "workflow";
   const initialVerification = verify(3, delayMs);
-  const initialBuild = jsonCommand("gh", ["api", `repos/${repo}/pages/builds/latest`]);
-  if (
-    initialVerification.status === 0 &&
-    initialBuild.commit === upstreamHead &&
-    initialBuild.status === "built"
-  ) {
-    process.stdout.write(initialVerification.stdout);
-    process.exit(0);
-  }
-  if (initialVerification.status === 0) {
-    console.log(
-      `WAIT public content matches, but latest Pages build is ${initialBuild.status} at ${initialBuild.commit}`,
-    );
+
+  if (!workflowMode) {
+    const initialBuild = jsonCommand("gh", ["api", `repos/${repo}/pages/builds/latest`]);
+    if (
+      initialVerification.status === 0 &&
+      initialBuild.commit === upstreamHead &&
+      initialBuild.status === "built"
+    ) {
+      process.stdout.write(initialVerification.stdout);
+      process.exit(0);
+    }
+    if (initialVerification.status === 0) {
+      console.log(
+        `WAIT public content matches, but latest Pages build is ${initialBuild.status} at ${initialBuild.commit}`,
+      );
+    }
   }
 
   let latestRun = pagesRunsForSha(upstreamHead)[0];
+  if (workflowMode && !latestRun) {
+    latestRun = await waitForFreshRun(upstreamHead, new Set());
+  }
   if (latestRun && latestRun.status !== "completed") latestRun = await waitForRun(latestRun);
 
   if (latestRun?.stalled) {
@@ -239,7 +262,35 @@ try {
 
   for (let rebuild = 1; rebuild <= maxRebuilds; rebuild += 1) {
     if (rebuild > 1) await sleep(delayMs * 3 * rebuild);
-    console.log(`RECOVER rebuild=${rebuild}/${maxRebuilds} repo=${repo} sha=${upstreamHead}`);
+    const knownRunIds = new Set(pagesRunsForSha(upstreamHead).map((runItem) => runItem.databaseId));
+
+    if (workflowMode) {
+      console.log(
+        `RECOVER workflow=${rebuild}/${maxRebuilds} repo=${repo} sha=${upstreamHead}`,
+      );
+      run("gh", ["workflow", "run", workflowFile, "--ref", "main"]);
+      const freshRun = await waitForFreshRun(upstreamHead, knownRunIds);
+      if (freshRun.conclusion === "success") {
+        const finalVerification = verify(12, delayMs);
+        process.stdout.write(finalVerification.stdout);
+        process.stderr.write(finalVerification.stderr);
+        if (finalVerification.status === 0) process.exit(0);
+        continue;
+      }
+
+      const classification = classifyFailure(freshRun);
+      if (!classification.recoverable) {
+        throw new Error(
+          `fresh Pages workflow ${freshRun.databaseId} failed with a non-recoverable error`,
+        );
+      }
+      console.error(
+        `RECOVER workflow=${rebuild} failed: ${classification.logExcerpt || "transient deploy failure"}`,
+      );
+      continue;
+    }
+
+    console.log(`RECOVER build=${rebuild}/${maxRebuilds} repo=${repo} sha=${upstreamHead}`);
     jsonCommand("gh", ["api", "-X", "POST", `repos/${repo}/pages/builds`]);
 
     try {
@@ -249,11 +300,11 @@ try {
       process.stderr.write(finalVerification.stderr);
       if (finalVerification.status === 0) process.exit(0);
     } catch (error) {
-      console.error(`RECOVER rebuild=${rebuild} failed: ${error.message}`);
+      console.error(`RECOVER build=${rebuild} failed: ${error.message}`);
     }
   }
 
-  console.error(`FAIL ${date}: Pages recovery exhausted after ${maxRebuilds} fresh builds`);
+  console.error(`FAIL ${date}: Pages recovery exhausted after ${maxRebuilds} fresh runs`);
   process.exit(1);
 } catch (error) {
   console.error(`FAIL ${date}: ${error.message}`);

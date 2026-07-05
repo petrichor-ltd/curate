@@ -12,6 +12,7 @@
 !.gitignore
 !.nojekyll
 !CNAME
+!.github/workflows/pages.yml
 
 # Website application
 !index.html
